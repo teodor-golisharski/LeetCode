@@ -4,48 +4,40 @@ import java.util.Set;
 public class Solution2257 {
 
     public static int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
-        Set<String> guardSet = new HashSet<>();
-        Set<String> wallSet = new HashSet<>();
-        Set<String> guardedSet = new HashSet<>();
+        int[][] g = new int[m][n];
 
         for (int[] e : guards) {
-            guardSet.add(e[0] + "," + e[1]);
+            g[e[0]][e[1]] = 2;
         }
-
         for (int[] e : walls) {
-            wallSet.add(e[0] + "," + e[1]);
+            g[e[0]][e[1]] = 2;
         }
 
-        int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
-
-        int spaceLeft = m * n;
+        int[] dirs = {-1, 0, 1, 0, -1};
 
         for (int[] e : guards) {
-            int x = e[0];
-            int y = e[1];
+            for (int k = 0; k < 4; ++k) {
+                int x = e[0], y = e[1];
+                int dx = dirs[k], dy = dirs[k + 1];
 
-            for (int[] dir : directions) {
-                int nextX = x + dir[0];
-                int nextY = y + dir[1];
-
-                while (nextX >= 0 && nextY >= 0 && nextX < m && nextY < n) {
-                    String pos = nextX + "," + nextY;
-
-                    if (guardSet.contains(pos) || wallSet.contains(pos)) {
-                        break;
-                    }
-
-                    guardedSet.add(pos);
-
-                    nextX += dir[0];
-                    nextY += dir[1];
+                while (x + dx >= 0 && x + dx < m && y + dy >= 0 && y + dy < n && g[x + dx][y + dy] < 2) {
+                    x += dx;
+                    y += dy;
+                    g[x][y] = 1;
                 }
             }
         }
 
-        spaceLeft -= (guardedSet.size() + wallSet.size() + guardSet.size());
+        int unguardedCount = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (g[i][j] == 0) {
+                    unguardedCount++;
+                }
+            }
+        }
 
-        return spaceLeft;
+        return unguardedCount;
     }
 
     public static void main(String[] args) {

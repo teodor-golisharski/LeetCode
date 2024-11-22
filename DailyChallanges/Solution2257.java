@@ -1,91 +1,68 @@
-public class Solution2257 {
-    static int counter = 0;
+import java.util.HashSet;
+import java.util.Set;
 
-    public static boolean checkMove(char[][] matrix, int nextX, int nextY) {
-        if (nextX >= 0 && nextY >= 0 && nextX < matrix.length && nextY < matrix[nextX].length) {
-            if (matrix[nextX][nextY] != 'w' && matrix[nextX][nextY] != 'g') {
-                if(matrix[nextX][nextY] != 'o'){
-                    matrix[nextX][nextY] = 'o';
-                    counter++;
-                }
+public class Solution2257 {
+
+    private static boolean containsPosition(Set<int[]> set, int[] pos) {
+        for (int[] p : set) {
+            if (p[0] == pos[0] && p[1] == pos[1]) {
                 return true;
             }
         }
+        //return set.contains(x -> x[0] == pos[0] && x[1] == pos[1]);
         return false;
     }
 
     public static int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
-        counter = 0;
-
-        char[][] matrix = new char[m][n];
-
-        int guardsCount = 0;
-        int wallsCount = 0;
+        Set<int[]> guardSet = new HashSet<>();
+        Set<int[]> wallSet = new HashSet<>();
+        Set<int[]> guardedSet = new HashSet<>();
 
         for (int[] e : guards) {
-            matrix[e[0]][e[1]] = 'g';
-            guardsCount++;
+            guardSet.add(new int[]{e[0], e[1]});
         }
 
         for (int[] e : walls) {
-            matrix[e[0]][e[1]] = 'w';
-            wallsCount++;
+            wallSet.add(new int[]{e[0], e[1]});
         }
 
-        int spaceLeft = m * n - guardsCount - wallsCount;
+        int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+
+        int spaceLeft = m * n;
 
         for (int[] e : guards) {
             int x = e[0];
             int y = e[1];
 
-            int temp = y - 1;
-            // left (x, y - 1)
-            while (true) {
-                boolean flag = checkMove(matrix, x, temp);
-                if (!flag) {
-                    break;
-                }
-                temp--;
-            }
+            for (int[] dir : directions) {
+                int nextX = x + dir[0];
+                int nextY = y + dir[1];
 
-            temp = y + 1;
-            // right (x, y + 1)
-            while (true) {
-                boolean flag = checkMove(matrix, x, temp);
-                if (!flag) {
-                    break;
-                }
-                temp++;
-            }
+                while (nextX >= 0 && nextY >= 0 && nextX < m && nextY < n) {
+                    int[] pos = new int[]{nextX, nextY};
 
-            temp = x - 1;
-            // up (x - 1, y)
-            while (true) {
-                boolean flag = checkMove(matrix, temp, y);
-                if (!flag) {
-                    break;
-                }
-                temp--;
-            }
+                    if (containsPosition(guardSet, pos) || containsPosition(wallSet, pos)) {
+                        break;
+                    }
 
-            temp = x + 1;
-            // down (x + 1, y)
-            while (true) {
-                boolean flag = checkMove(matrix, temp, y);
-                if (!flag) {
-                    break;
+                    if(!containsPosition(guardedSet, pos)){
+                        guardedSet.add(pos);
+                    }
+
+                    nextX += dir[0];
+                    nextY += dir[1];
                 }
-                temp++;
             }
         }
 
-        spaceLeft -= counter;
+        spaceLeft -= (guardedSet.size() + wallSet.size() + guardSet.size());
 
         return spaceLeft;
     }
 
     public static void main(String[] args) {
 
-        System.out.println(countUnguarded(3, 3, new int[][]{{1, 1}}, new int[][]{{0, 1}, {1, 0}, {2, 1}, {1, 2}}));
+        System.out.println(countUnguarded(4, 6, new int[][]{{0, 0}, {1, 1}, {2, 3}}, new int[][]{{0, 1}, {2, 2}, {1, 4}}));
+        //System.out.println(countUnguarded(3, 3, new int[][]{{1, 1}}, new int[][]{{0, 1}, {1, 0}, {2, 1}, {1, 2}}));
     }
 }

@@ -3,27 +3,17 @@ import java.util.Set;
 
 public class Solution2257 {
 
-    private static boolean containsPosition(Set<int[]> set, int[] pos) {
-        for (int[] p : set) {
-            if (p[0] == pos[0] && p[1] == pos[1]) {
-                return true;
-            }
-        }
-        //return set.contains(x -> x[0] == pos[0] && x[1] == pos[1]);
-        return false;
-    }
-
     public static int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
-        Set<int[]> guardSet = new HashSet<>();
-        Set<int[]> wallSet = new HashSet<>();
-        Set<int[]> guardedSet = new HashSet<>();
+        Set<String> guardSet = new HashSet<>();
+        Set<String> wallSet = new HashSet<>();
+        Set<String> guardedSet = new HashSet<>();
 
         for (int[] e : guards) {
-            guardSet.add(new int[]{e[0], e[1]});
+            guardSet.add(e[0] + "," + e[1]);
         }
 
         for (int[] e : walls) {
-            wallSet.add(new int[]{e[0], e[1]});
+            wallSet.add(e[0] + "," + e[1]);
         }
 
         int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
@@ -39,15 +29,13 @@ public class Solution2257 {
                 int nextY = y + dir[1];
 
                 while (nextX >= 0 && nextY >= 0 && nextX < m && nextY < n) {
-                    int[] pos = new int[]{nextX, nextY};
+                    String pos = nextX + "," + nextY;
 
-                    if (containsPosition(guardSet, pos) || containsPosition(wallSet, pos)) {
+                    if (guardSet.contains(pos) || wallSet.contains(pos)) {
                         break;
                     }
 
-                    if(!containsPosition(guardedSet, pos)){
-                        guardedSet.add(pos);
-                    }
+                    guardedSet.add(pos);
 
                     nextX += dir[0];
                     nextY += dir[1];
